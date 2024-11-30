@@ -23,6 +23,12 @@ export const fetchUsers = async (): Promise<User[]> => {
   return response.data;
 };
 
+// Fetch users by team
+export const fetchUsersByTeam = async (teamId: number): Promise<User[]> => {
+  const response = await axios.get(`${API_BASE_URL}/users?teamId=${teamId}`);
+  return response.data;
+};
+
 export const addUser = async (user: Omit<User, "id">): Promise<User> => {
   const response = await api.post("/users", user);
   return response.data;
@@ -43,6 +49,12 @@ export const deleteUser = async (id: number): Promise<void> => {
 // Teams API
 export const fetchTeams = async (): Promise<Team[]> => {
   const response = await api.get("/teams");
+  return response.data;
+};
+
+// Fetch team by ID
+export const fetchTeamById = async (id: number): Promise<Team> => {
+  const response = await api.get(`/teams/${id}`);
   return response.data;
 };
 

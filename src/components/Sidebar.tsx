@@ -9,14 +9,14 @@ const Sidebar: React.FC = () => {
       </div>
       <nav className="flex flex-col flex-1 p-4 space-y-2">
         <NavLink
-          to="/users"
+          to="/"
           className={({ isActive }) =>
             `p-3 rounded hover:bg-gray-200 ${
               isActive ? "bg-gray-300 font-semibold" : ""
             }`
           }
         >
-          Users
+          Home
         </NavLink>
         <NavLink
           to="/roles"
