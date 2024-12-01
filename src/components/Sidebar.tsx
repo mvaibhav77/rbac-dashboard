@@ -19,6 +19,16 @@ const Sidebar: React.FC = () => {
           Home
         </NavLink>
         <NavLink
+          to="/users"
+          className={({ isActive }) =>
+            `p-3 rounded hover:bg-gray-200 ${
+              isActive ? "bg-gray-300 font-semibold" : ""
+            }`
+          }
+        >
+          All Users
+        </NavLink>
+        <NavLink
           to="/roles"
           className={({ isActive }) =>
             `p-3 rounded hover:bg-gray-200 ${

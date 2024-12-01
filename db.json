@@ -1,7 +1,7 @@
 {
   "users": [
     {
-      "id": 1,
+      "id": "1",
       "name": "Super Admin",
       "email": "admin@example.com",
       "role": "admin",
@@ -9,46 +9,96 @@
       "status": "Active"
     },
     {
-      "id": 2,
+      "id": "2",
       "name": "Jane Doe",
       "email": "jane@example.com",
       "role": "manager",
       "teamId": 1,
       "status": "Active"
-    },
-    {
-      "id": 3,
-      "name": "John Smith",
-      "email": "john@example.com",
-      "role": "team_member",
-      "teamId": 2,
-      "status": "Active"
     }
   ],
   "teams": [
-    { "id": 1, "name": "Sales", "description": "Handles client acquisition" },
-    { "id": 2, "name": "Development", "description": "Develops the product" }
+    {
+      "id": "1",
+      "name": "Sales",
+      "description": "Handles client acquisition"
+    },
+    {
+      "id": "2",
+      "name": "Development",
+      "description": "Develops the product"
+    }
   ],
   "roles": [
-    { "id": 1, "name": "admin" },
-    { "id": 2, "name": "manager" },
-    { "id": 3, "name": "team_member" }
+    {
+      "id": "1",
+      "name": "admin"
+    },
+    {
+      "id": "2",
+      "name": "manager"
+    },
+    {
+      "id": "3",
+      "name": "team_member"
+    }
   ],
   "permissions": [
-    { "id": 1, "name": "read" },
-    { "id": 2, "name": "write" },
-    { "id": 3, "name": "delete" }
+    {
+      "id": "1",
+      "name": "read"
+    },
+    {
+      "id": "2",
+      "name": "write"
+    },
+    {
+      "id": "3",
+      "name": "delete"
+    }
   ],
   "rolePermissions": [
-    { "roleId": 1, "permissionId": 1 },
-    { "roleId": 1, "permissionId": 2 },
-    { "roleId": 1, "permissionId": 3 },
-    { "roleId": 2, "permissionId": 1 },
-    { "roleId": 2, "permissionId": 2 },
-    { "roleId": 3, "permissionId": 1 }
+    {
+      "roleId": 1,
+      "permissionId": 1,
+      "id": "d9e2"
+    },
+    {
+      "roleId": 1,
+      "permissionId": 2,
+      "id": "3916"
+    },
+    {
+      "roleId": 1,
+      "permissionId": 3,
+      "id": "bcf0"
+    },
+    {
+      "roleId": 2,
+      "permissionId": 1,
+      "id": "91c3"
+    },
+    {
+      "roleId": 2,
+      "permissionId": 2,
+      "id": "7a51"
+    },
+    {
+      "roleId": 3,
+      "permissionId": 1,
+      "id": "bb31"
+    }
   ],
   "userTeams": [
-    { "userId": 2, "teamId": 1 },
-    { "userId": 3, "teamId": 2 }
+    {
+      "userId": 2,
+      "teamId": 1,
+      "id": "fe58"
+    },
+    {
+      "userId": 3,
+      "teamId": 2,
+      "id": "03d4"
+    }
   ]
 }
