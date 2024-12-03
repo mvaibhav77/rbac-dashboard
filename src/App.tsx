@@ -1,11 +1,11 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Dashboard from "./components/Dashboard";
-import Users from "./components/Screens/Users";
-import Roles from "./components/Screens/Roles";
-import Permissions from "./components/Screens/Permissions";
-import Home from "./components/Screens/Home";
-import AllUsers from "./components/Screens/AllUsers";
+import Users from "./Screens/Users";
+import Roles from "./Screens/Roles";
+import Permissions from "./Screens/Permissions";
+import Home from "./Screens/Home";
+import AllUsers from "./Screens/AllUsers";
 function App() {
   return (
     <Router>

@@ -81,10 +81,45 @@ export const fetchRoles = async (): Promise<Role[]> => {
   return response.data;
 };
 
+export const addRole = async (role: Omit<Role, "id">): Promise<Role> => {
+  const response = await axios.post(`${API_BASE_URL}/roles`, role);
+  return response.data;
+};
+
+export const updateRole = async (id: number, role: Role): Promise<Role> => {
+  const response = await axios.put(`${API_BASE_URL}/roles/${id}`, role);
+  return response.data;
+};
+
+export const deleteRole = async (id: number): Promise<void> => {
+  await axios.delete(`${API_BASE_URL}/roles/${id}`);
+};
+
 // Permissions API
 export const fetchPermissions = async (): Promise<Permission[]> => {
   const response = await api.get("/permissions");
   return response.data;
+};
+export const addPermission = async (
+  permission: Omit<Permission, "id">
+): Promise<Permission> => {
+  const response = await axios.post(`${API_BASE_URL}/permissions`, permission);
+  return response.data;
+};
+
+export const updatePermission = async (
+  id: number,
+  permission: Permission
+): Promise<Permission> => {
+  const response = await axios.put(
+    `${API_BASE_URL}/permissions/${id}`,
+    permission
+  );
+  return response.data;
+};
+
+export const deletePermission = async (id: number): Promise<void> => {
+  await axios.delete(`${API_BASE_URL}/permissions/${id}`);
 };
 
 // Role-Permission Mapping API

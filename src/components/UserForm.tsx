@@ -16,6 +16,7 @@ interface UserFormProps {
   onSave: (user: Partial<User>) => void;
   onCancel: () => void;
   teams: Team[];
+  currentTeamId?: number; // Current team for context
   user?: User;
 }
 
@@ -23,15 +24,14 @@ const UserForm: React.FC<UserFormProps> = ({
   onSave,
   onCancel,
   teams,
+  currentTeamId,
   user,
 }) => {
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
   const [role, setRole] = useState(user?.role || "team_member");
   const [status, setStatus] = useState(user?.status || "Active");
-  const [teamId, setTeamId] = useState(user?.teamId || null);
-
-  console.log(email, role, status, teamId);
+  const [teamId, setTeamId] = useState(user?.teamId || currentTeamId || null);
 
   const handleSubmit = () => {
     onSave({ id: user?.id, name, email, role, status, teamId });
@@ -82,20 +82,23 @@ const UserForm: React.FC<UserFormProps> = ({
         </SelectContent>
       </Select>
       <Select
-        disabled={role === "admin"}
-        value={teams.find((team) => team.id == teamId)?.name}
-        onValueChange={(e: string | null) => setTeamId(Number(e))}
+        disabled={role === "admin" || currentTeamId === null}
+        value={teamId !== null ? String(teamId) : "null"}
+        onValueChange={(e: string) =>
+          setTeamId(e === "null" ? null : Number(e))
+        }
       >
         <SelectTrigger>
           <SelectValue placeholder="Select a team">
-            {/* convert teamId to team name */}
-            {teams.find((team) => team.id == teamId)?.name}
+            {teamId !== null
+              ? teams.find((team) => team.id === teamId)?.name
+              : "No Team"}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             <SelectLabel>Set Team</SelectLabel>
-            <SelectItem value={"ONLY ADMIN"}>No Team</SelectItem>
+            <SelectItem value="null">No Team</SelectItem>
             {teams.map((team) => (
               <SelectItem key={team.id} value={String(team.id)}>
                 {team.name}

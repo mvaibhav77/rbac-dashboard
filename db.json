@@ -15,6 +15,54 @@
       "role": "manager",
       "teamId": 1,
       "status": "Active"
+    },
+    {
+      "id": "3",
+      "name": "John Smith",
+      "email": "john.smith@example.com",
+      "role": "team_member",
+      "teamId": 1,
+      "status": "Active"
+    },
+    {
+      "id": "4",
+      "name": "Emily Clark",
+      "email": "emily.clark@example.com",
+      "role": "team_member",
+      "teamId": 1,
+      "status": "Inactive"
+    },
+    {
+      "id": "5",
+      "name": "Michael Brown",
+      "email": "michael.brown@example.com",
+      "role": "manager",
+      "teamId": 2,
+      "status": "Active"
+    },
+    {
+      "id": "6",
+      "name": "Sophia Davis",
+      "email": "sophia.davis@example.com",
+      "role": "team_member",
+      "teamId": 2,
+      "status": "Active"
+    },
+    {
+      "id": "7",
+      "name": "James Wilson",
+      "email": "james.wilson@example.com",
+      "role": "team_member",
+      "teamId": 2,
+      "status": "Active"
+    },
+    {
+      "id": "8",
+      "name": "Olivia Martinez",
+      "email": "olivia.martinez@example.com",
+      "role": "team_member",
+      "teamId": 2,
+      "status": "Inactive"
     }
   ],
   "teams": [
@@ -97,8 +145,33 @@
     },
     {
       "userId": 3,
+      "teamId": 1,
+      "id": "6a74"
+    },
+    {
+      "userId": 4,
+      "teamId": 1,
+      "id": "8b92"
+    },
+    {
+      "userId": 5,
       "teamId": 2,
       "id": "03d4"
+    },
+    {
+      "userId": 6,
+      "teamId": 2,
+      "id": "11c7"
+    },
+    {
+      "userId": 7,
+      "teamId": 2,
+      "id": "43e8"
+    },
+    {
+      "userId": 8,
+      "teamId": 2,
+      "id": "29f1"
     }
   ]
 }

@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import UserForm from "../UserForm";
+import UserForm from "../components/UserForm";
 
 const AllUsers = () => {
   const [users, setUsers] = useState<User[]>([]);

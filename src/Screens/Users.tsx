@@ -1,13 +1,27 @@
-import { deleteUser, fetchTeamById, fetchUsersByTeam } from "@/api/api";
-import { Team, User } from "@/lib/types";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import {
+  deleteUser,
+  fetchTeamById,
+  fetchUsersByTeam,
+  updateUser,
+} from "@/api/api";
+import { Team, User } from "@/lib/types";
+import UserForm from "@/components/UserForm";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const Users: React.FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const [team, setTeam] = useState<Team>({ id: 0, name: "", description: "" });
   const [managers, setManagers] = useState<User[]>([]);
   const [teamMembers, setTeamMembers] = useState<User[]>([]);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -29,6 +43,32 @@ const Users: React.FC = () => {
       setManagers(managers.filter((user) => user.id !== id));
       setTeamMembers(teamMembers.filter((user) => user.id !== id));
     }
+  };
+
+  const handleEdit = (user: User) => {
+    setIsEditDialogOpen(true);
+    setEditUser(user);
+  };
+
+  const handleEditSave = async (updatedUser: Partial<User>) => {
+    if (!updatedUser.id) return;
+    await updateUser(updatedUser.id, updatedUser as User);
+
+    if (updatedUser.role === "manager") {
+      setManagers((prev) =>
+        prev.map((user) =>
+          user.id === updatedUser.id ? { ...user, ...updatedUser } : user
+        )
+      );
+    } else {
+      setTeamMembers((prev) =>
+        prev.map((user) =>
+          user.id === updatedUser.id ? { ...user, ...updatedUser } : user
+        )
+      );
+    }
+
+    setEditUser(null);
   };
 
   const renderTable = (users: User[], title: string) => (
@@ -56,7 +96,12 @@ const Users: React.FC = () => {
                 >
                   Delete
                 </button>
-                <button className="text-blue-500 hover:underline">Edit</button>
+                <button
+                  className="text-blue-500 hover:underline"
+                  onClick={() => handleEdit(user)}
+                >
+                  Edit
+                </button>
               </td>
             </tr>
           ))}
@@ -70,6 +115,24 @@ const Users: React.FC = () => {
       <h1 className="text-2xl font-bold mb-6">Users in Team {team.name}</h1>
       {renderTable(managers, "Managers")}
       {renderTable(teamMembers, "Team Members")}
+
+      {editUser && (
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit User</DialogTitle>
+            </DialogHeader>
+            {editUser && (
+              <UserForm
+                onSave={(user) => handleEditSave(user)}
+                teams={[team]}
+                user={editUser}
+                onCancel={() => setIsEditDialogOpen(false)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

@@ -3,7 +3,7 @@ export interface User {
   id: number; // Unique identifier
   name: string; // User's full name
   email: string; // User's email address
-  role: RoleName; // Role assigned to the user
+  role: string; // Role assigned to the user
   teamId: number | null; // Associated team (nullable for admin)
   status: "Active" | "Inactive"; // Status of the user
 }
@@ -18,17 +18,17 @@ export interface Team {
 // Permission Type
 export interface Permission {
   id: number; // Unique identifier
-  name: "read" | "write" | "delete"; // Permission name
+  name: string; // Permission name
 }
 
 // Role Type
 export interface Role {
   id: number; // Unique identifier
-  name: RoleName; // Role name
+  name: string; // Role name
 }
 
 // Role Name Type
-export type RoleName = "admin" | "manager" | "team_member"; // Enum-like type for roles
+// export type RoleName = "admin" | "manager" | "team_member"; // Enum-like type for roles
 
 // Role-Permission Mapping Type
 export interface RolePermission {
