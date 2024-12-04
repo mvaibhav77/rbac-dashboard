@@ -1,6 +1,6 @@
 # Role Based Access Control (RBAC) Dashboard
 
-A **Role Based Access Control (RBAC) Dashbpoard** built with **React**, providing a user-friendly interface to manage users, teams, and roles. This project enables administrators to add, edit, delete, and view users, assign roles with specific permissions, and associate users with teams.
+A **Role Based Access Control (RBAC) Dashboard** built with **React**, providing a user-friendly interface to manage users, teams, and roles. This project enables administrators to add, edit, delete, and view users, assign roles with specific permissions, and associate users with teams.
 
 ---
 
