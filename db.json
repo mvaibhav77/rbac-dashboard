@@ -4,23 +4,23 @@
       "id": "1",
       "name": "Super Admin",
       "email": "admin@example.com",
-      "role": "admin",
-      "teamId": null,
-      "status": "Active"
+      "roleId": "6a87",
+      "status": "Active",
+      "teamId": null
     },
     {
       "id": "2",
       "name": "Jane Doe",
       "email": "jane@example.com",
-      "role": "manager",
-      "teamId": 1,
-      "status": "Active"
+      "roleId": "5f9f",
+      "status": "Active",
+      "teamId": 1
     },
     {
       "id": "3",
       "name": "John Smith",
       "email": "john.smith@example.com",
-      "role": "team_member",
+      "roleId": null,
       "teamId": 1,
       "status": "Active"
     },
@@ -28,7 +28,7 @@
       "id": "4",
       "name": "Emily Clark",
       "email": "emily.clark@example.com",
-      "role": "team_member",
+      "roleId": null,
       "teamId": 1,
       "status": "Inactive"
     },
@@ -36,7 +36,7 @@
       "id": "5",
       "name": "Michael Brown",
       "email": "michael.brown@example.com",
-      "role": "manager",
+      "roleId": null,
       "teamId": 2,
       "status": "Active"
     },
@@ -44,7 +44,7 @@
       "id": "6",
       "name": "Sophia Davis",
       "email": "sophia.davis@example.com",
-      "role": "team_member",
+      "roleId": null,
       "teamId": 2,
       "status": "Active"
     },
@@ -52,7 +52,7 @@
       "id": "7",
       "name": "James Wilson",
       "email": "james.wilson@example.com",
-      "role": "team_member",
+      "roleId": null,
       "teamId": 2,
       "status": "Active"
     },
@@ -60,7 +60,7 @@
       "id": "8",
       "name": "Olivia Martinez",
       "email": "olivia.martinez@example.com",
-      "role": "team_member",
+      "roleId": null,
       "teamId": 2,
       "status": "Inactive"
     }
@@ -79,62 +79,81 @@
   ],
   "roles": [
     {
-      "id": "1",
-      "name": "admin"
+      "id": "5f9f",
+      "name": "Manager",
+      "teamId": 1,
+      "permissions": [
+        "aedc"
+      ]
     },
     {
-      "id": "2",
-      "name": "manager"
+      "id": "e5eb",
+      "name": "Team Member",
+      "teamId": 1,
+      "permissions": [
+        "aedc"
+      ]
     },
     {
-      "id": "3",
-      "name": "team_member"
+      "id": "b43a",
+      "name": "Manager",
+      "teamId": 1,
+      "permissions": [
+        "0699"
+      ]
+    },
+    {
+      "name": "ADMIN",
+      "teamId": 2,
+      "permissions": [
+        "aedc",
+        "55ff",
+        "0699"
+      ],
+      "id": "1827"
+    },
+    {
+      "id": "6a87",
+      "name": "SUPER_ADMIN",
+      "teamId": 1,
+      "permissions": [
+        "aedc",
+        "55ff"
+      ]
     }
   ],
-  "permissions": [
+  "permissionLevels": [
     {
-      "id": "1",
-      "name": "read"
+      "name": "Write",
+      "parentId": null,
+      "id": "aedc"
     },
     {
-      "id": "2",
-      "name": "write"
+      "name": "Read",
+      "parentId": "aedc",
+      "id": "55ff"
     },
     {
-      "id": "3",
-      "name": "delete"
+      "name": "Delete",
+      "parentId": null,
+      "id": "0699"
     }
   ],
   "rolePermissions": [
     {
       "roleId": 1,
-      "permissionId": 1,
-      "id": "d9e2"
-    },
-    {
-      "roleId": 1,
-      "permissionId": 2,
-      "id": "3916"
-    },
-    {
-      "roleId": 1,
-      "permissionId": 3,
-      "id": "bcf0"
+      "permissionLevelId": "aedc",
+      "id": "f634"
     },
     {
       "roleId": 2,
-      "permissionId": 1,
-      "id": "91c3"
-    },
-    {
-      "roleId": 2,
-      "permissionId": 2,
-      "id": "7a51"
+      "permissionLevelId": "55ff",
+      "id": "0f59"
     },
     {
       "roleId": 3,
-      "permissionId": 1,
-      "id": "bb31"
+      "permissionLevelId": "0699",
+      "id": "856e"
     }
   ],
   "userTeams": [

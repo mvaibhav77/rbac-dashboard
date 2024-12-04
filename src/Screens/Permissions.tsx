@@ -1,142 +1,233 @@
 import React, { useEffect, useState } from "react";
-import { Permission } from "@/lib/types";
 import {
-  fetchPermissions,
-  addPermission,
-  updatePermission,
-  deletePermission,
+  fetchHierarchicalPermissions,
+  addPermissionLevel,
+  updatePermissionLevel,
+  deletePermissionLevel,
 } from "@/api/api";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "../components/ui/button";
+import { Permission } from "@/lib/types";
+import { Button } from "@/components/ui/button"; // shadcn/ui Button
+import { Input } from "@/components/ui/input"; // shadcn/ui Input
+import { Select, SelectItem, SelectTrigger } from "@/components/ui/select"; // shadcn/ui Select
+import { Card, CardHeader, CardContent } from "@/components/ui/card"; // shadcn/ui Card
+import { useToast } from "@/hooks/use-toast";
+import {
+  SelectContent,
+  SelectGroup,
+  SelectValue,
+} from "@radix-ui/react-select";
 
-const Permissions: React.FC = () => {
+const PermissionsPage = () => {
   const [permissions, setPermissions] = useState<Permission[]>([]);
-  const [currentPermission, setCurrentPermission] = useState<Permission | null>(
-    null
-  );
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState<Partial<Permission>>({
+    name: "",
+    parentId: null,
+  });
+  const { toast } = useToast();
 
   useEffect(() => {
-    const loadPermissions = async () => {
-      const data = await fetchPermissions();
-      setPermissions(data);
-    };
-
     loadPermissions();
   }, []);
 
-  const handleAddOrUpdate = async (name: string) => {
-    if (currentPermission) {
-      const updatedPermission = await updatePermission(currentPermission.id, {
-        ...currentPermission,
-        name,
+  const loadPermissions = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchHierarchicalPermissions();
+      console.log(data);
+      setPermissions(data);
+    } catch (err) {
+      setError("Failed to load permissions.");
+      console.log(err);
+      toast({
+        title: "Error",
+        description: "Failed to load permissions.",
+        variant: "destructive",
       });
-      setPermissions((prev) =>
-        prev.map((permission) =>
-          permission.id === updatedPermission.id
-            ? updatedPermission
-            : permission
-        )
-      );
-    } else {
-      const newPermission = await addPermission({ name });
-      setPermissions((prev) => [...prev, newPermission]);
+    } finally {
+      setLoading(false);
     }
-    setIsDialogOpen(false);
-    setCurrentPermission(null);
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm("Are you sure you want to delete this permission?")) {
-      await deletePermission(id);
-      setPermissions((prev) =>
-        prev.filter((permission) => permission.id !== id)
-      );
+  const handleFormChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: name === "parentId" ? (value ? value : null) : value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name) {
+      setError("Permission name is required.");
+      toast({
+        title: "Validation Error",
+        description: "Permission name is required.",
+        variant: "destructive",
+      });
+      return;
     }
+
+    try {
+      setLoading(true);
+      if (form.id) {
+        await updatePermissionLevel(form.id, {
+          name: form.name!,
+          parentId: form.parentId
+            ? form.parentId !== "No Parent"
+              ? form.parentId
+              : null
+            : null,
+        });
+        toast({
+          title: "Success",
+          description: "Permission updated successfully.",
+          variant: "default",
+        });
+      } else {
+        await addPermissionLevel({
+          name: form.name!,
+          parentId: form.parentId
+            ? form.parentId !== "No Parent"
+              ? form.parentId
+              : null
+            : null,
+        });
+        toast({
+          title: "Success",
+          description: "Permission added successfully.",
+          variant: "default",
+        });
+      }
+      setForm({ name: "", parentId: null });
+      loadPermissions();
+    } catch (err) {
+      setError("Failed to save permission.");
+      console.log(err);
+      toast({
+        title: "Error",
+        description: "Failed to save permission.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this permission?")) {
+      try {
+        setLoading(true);
+        await deletePermissionLevel(id);
+        loadPermissions();
+        toast({
+          title: "Success",
+          description: "Permission deleted successfully.",
+          variant: "default",
+        });
+      } catch (err) {
+        console.log(err);
+
+        setError("Failed to delete permission.");
+        toast({
+          title: "Error",
+          description: "Failed to delete permission.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const renderPermissions = (permissions: Permission[]) => {
+    return permissions.map((perm) => (
+      <li key={perm.id} className="ml-4 mt-2 list-disc">
+        <div className="flex items-center gap-2">
+          <span>{perm.name}</span>
+          <Button variant="outline" size="sm" onClick={() => setForm(perm)}>
+            Edit
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => handleDelete(perm.id)}
+          >
+            Delete
+          </Button>
+        </div>
+        {perm.children && perm.children.length > 0 && (
+          <ul>{renderPermissions(perm.children)}</ul>
+        )}
+      </li>
+    ));
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Manage Permissions</h1>
-      <div className="mb-4">
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button
-              className="px-4 py-2 rounded "
-              onClick={() => setCurrentPermission(null)}
-            >
-              Add Permission
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target as HTMLFormElement);
-                const name = formData.get("name") as string;
-                handleAddOrUpdate(name);
-              }}
-            >
-              <h2 className="text-xl font-bold mb-2">
-                {currentPermission ? "Edit Permission" : "Add Permission"}
-              </h2>
-              <input
-                type="text"
-                name="name"
-                defaultValue={currentPermission?.name || ""}
-                required
-                placeholder="Permission Name"
-                className="w-full p-2 border rounded mb-4"
-              />
-              <div className="flex justify-end">
-                <Button
-                  variant={"secondary"}
-                  className="mr-2 px-4 py-2 border rounded"
-                  onClick={() => setIsDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant={"default"}
-                  type="submit"
-                  className="px-4 py-2rounded"
-                >
-                  Save
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-      <ul className="space-y-3">
-        {permissions.map((permission) => (
-          <li
-            key={permission.id}
-            className="p-4 bg-white shadow-md rounded flex justify-between"
-          >
-            <span>{permission.name}</span>
-            <div className="space-x-2">
-              <button
-                className="text-blue-500 hover:underline"
-                onClick={() => {
-                  setCurrentPermission(permission);
-                  setIsDialogOpen(true);
-                }}
+    <div className="container mx-auto p-6">
+      <Card className="shadow-md">
+        <CardHeader>
+          <h1 className="text-lg font-bold">Permissions</h1>
+        </CardHeader>
+        <CardContent>
+          {loading && <p>Loading...</p>}
+          {error && <p className="text-red-500">{error}</p>}
+
+          <form onSubmit={handleSubmit} className="mb-4 flex gap-4 items-end">
+            <Input
+              type="text"
+              name="name"
+              placeholder="Permission Name"
+              value={form.name || ""}
+              onChange={handleFormChange}
+              className="flex-1"
+            />
+            <div className="flex-1">
+              <Select
+                name="parentId"
+                value={String(form.parentId || "")}
+                onValueChange={(value) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    parentId: value ? value : null,
+                  }))
+                }
+                // className="flex-1"
               >
-                Edit
-              </button>
-              <button
-                className="text-red-500 hover:underline"
-                onClick={() => handleDelete(permission.id)}
-              >
-                Delete
-              </button>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a parent permission">
+                    {form.parentId
+                      ? permissions.find((p) => p.id === form.parentId)?.name
+                      : "No Parent"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="No Parent">No Parent</SelectItem>
+                    {permissions.map((perm) => (
+                      <SelectItem key={perm.id} value={String(perm.id)}>
+                        {perm.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
-          </li>
-        ))}
-      </ul>
+
+            <Button type="submit">
+              {form.id ? "Update" : "Add"} Permission
+            </Button>
+          </form>
+
+          <ul>{renderPermissions(permissions)}</ul>
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
-export default Permissions;
+export default PermissionsPage;

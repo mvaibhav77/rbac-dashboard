@@ -6,9 +6,11 @@ import Roles from "./Screens/Roles";
 import Permissions from "./Screens/Permissions";
 import Home from "./Screens/Home";
 import AllUsers from "./Screens/AllUsers";
+import { Toaster } from "./components/ui/toaster";
 function App() {
   return (
     <Router>
+      <Toaster />
       <Routes>
         <Route path="/" element={<Dashboard />}>
           <Route path="/" element={<Home />} />

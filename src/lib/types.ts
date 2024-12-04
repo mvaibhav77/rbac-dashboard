@@ -3,9 +3,9 @@ export interface User {
   id: number; // Unique identifier
   name: string; // User's full name
   email: string; // User's email address
-  role: string; // Role assigned to the user
-  teamId: number | null; // Associated team (nullable for admin)
-  status: "Active" | "Inactive"; // Status of the user
+  roleId: string; // ID of the role assigned to the user
+  teamId: number | null; // ID of the associated team (nullable for admin)
+  status: "Active" | "Inactive"; // Status of the user (active or inactive)
 }
 
 // Team Type
@@ -15,31 +15,32 @@ export interface Team {
   description: string; // Description of the team's purpose
 }
 
-// Permission Type
-export interface Permission {
-  id: number; // Unique identifier
-  name: string; // Permission name
-}
+// Permission Type// Permission Type
+export type Permission = {
+  id: string; // Unique identifier for the permission
+  name: string; // Name of the permission level
+  parentId: string | null; // Parent permission ID (null for root-level permissions)
+  children?: Permission[]; // Array of child permissions (used for hierarchy)
+};
 
 // Role Type
 export interface Role {
-  id: number; // Unique identifier
-  name: string; // Role name
+  id: string; // Unique identifier for the role
+  name: string; // Name of the role (e.g., "admin", "manager", "team_member")
+  teamId: number | null; // ID of the associated team (nullable for admin)
+  permissions: string[]; // ID of the permission level associated with this role
 }
-
-// Role Name Type
-// export type RoleName = "admin" | "manager" | "team_member"; // Enum-like type for roles
 
 // Role-Permission Mapping Type
 export interface RolePermission {
-  id?: number; // Unique identifier (optional for client-side creation)
-  roleId: number; // ID of the role
-  permissionId: number; // ID of the permission
+  id?: string; // Unique identifier for the mapping (optional for client-side creation)
+  roleId: string; // ID of the role
+  permissionId: string; // ID of the permission level
 }
 
 // User-Team Mapping Type
 export interface UserTeam {
-  id?: number; // Unique identifier (optional for client-side creation)
+  id?: string; // Unique identifier for the mapping (optional for client-side creation)
   userId: number; // ID of the user
   teamId: number; // ID of the team
 }

@@ -1,12 +1,14 @@
+import React, { useEffect, useState } from "react";
 import {
   deleteUser,
   fetchUsers,
   fetchTeams,
+  fetchRoles,
   addUser,
   updateUser,
+  fetchPermissionLevels,
 } from "@/api/api";
-import { User, Team } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { User, Team, Role, Permission } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
@@ -14,30 +16,29 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import UserForm from "../components/UserForm";
+import UserForm from "@/components/UserForm";
 
 const AllUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
-      const [userData, teamData] = await Promise.all([
-        fetchUsers(),
-        fetchTeams(),
-      ]);
+      const [userData, teamData, roleData, permissionsData] = await Promise.all(
+        [fetchUsers(), fetchTeams(), fetchRoles(), fetchPermissionLevels()]
+      );
       setUsers(userData);
       setTeams(teamData);
+      setRoles(roleData);
+      setPermissions(permissionsData);
     };
     loadData();
   }, []);
-
-  useEffect(() => {
-    console.log(isAddDialogOpen, isEditDialogOpen);
-  }, [isAddDialogOpen, isEditDialogOpen]);
 
   const handleDelete = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
@@ -56,7 +57,7 @@ const AllUsers = () => {
       const newUser = await addUser({
         name: user.name!,
         email: user.email!,
-        role: user.role!,
+        roleId: user.roleId!,
         status: user.status!,
         teamId: user.teamId!,
       });
@@ -73,41 +74,55 @@ const AllUsers = () => {
           <th className="py-2 px-4 text-left">Name</th>
           <th className="py-2 px-4 text-left">Email</th>
           <th className="py-2 px-4 text-left">Role</th>
+          <th className="py-2 px-4 text-left">Permissions</th>
           <th className="py-2 px-4 text-left">Status</th>
           <th className="py-2 px-4 text-left">Team</th>
           <th className="py-2 px-4 text-center">Actions</th>
         </tr>
       </thead>
       <tbody>
-        {users.map((user) => (
-          <tr key={user.id} className="border-b hover:bg-gray-50">
-            <td className="py-2 px-4">{user.name}</td>
-            <td className="py-2 px-4">{user.email}</td>
-            <td className="py-2 px-4">{user.role}</td>
-            <td className="py-2 px-4">{user.status}</td>
-            <td className="py-2 px-4">
-              {/* convert teamId to team name */}
-              {teams.find((team) => team.id == user.teamId)?.name || "N/A"}
-            </td>
-            <td className="py-2 px-4 text-center">
-              <button
-                className="text-blue-500 hover:underline mr-2"
-                onClick={() => {
-                  setSelectedUser(user);
-                  setEditDialogOpen(true);
-                }}
-              >
-                Edit
-              </button>
-              <button
-                className="text-red-500 hover:underline"
-                onClick={() => handleDelete(user.id)}
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
-        ))}
+        {users.map((user) => {
+          const role = roles.find((role) => role.id === user.roleId);
+          const rolePermissions =
+            role?.permissions
+              .map(
+                (permId) => permissions.find((perm) => perm.id === permId)?.name
+              )
+              .filter(Boolean) || [];
+          return (
+            <tr key={user.id} className="border-b hover:bg-gray-50">
+              <td className="py-2 px-4">{user.name}</td>
+              <td className="py-2 px-4">{user.email}</td>
+              <td className="py-2 px-4">{role?.name || "N/A"}</td>
+              <td className="py-2 px-4">
+                {rolePermissions.length > 0
+                  ? rolePermissions.join(", ")
+                  : "No Permissions"}
+              </td>
+              <td className="py-2 px-4">{user.status}</td>
+              <td className="py-2 px-4">
+                {teams.find((team) => team.id === user.teamId)?.name || "N/A"}
+              </td>
+              <td className="py-2 px-4 text-center">
+                <button
+                  className="text-blue-500 hover:underline mr-2"
+                  onClick={() => {
+                    setSelectedUser(user);
+                    setEditDialogOpen(true);
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  className="text-red-500 hover:underline"
+                  onClick={() => handleDelete(user.id)}
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
@@ -129,6 +144,7 @@ const AllUsers = () => {
           <UserForm
             onSave={(user) => handleSaveUser(user, false)}
             teams={teams}
+            roles={roles}
             onCancel={() => setAddDialogOpen(false)}
           />
         </DialogContent>
@@ -144,6 +160,7 @@ const AllUsers = () => {
             <UserForm
               onSave={(user) => handleSaveUser(user, true)}
               teams={teams}
+              roles={roles}
               user={selectedUser}
               onCancel={() => setEditDialogOpen(false)}
             />

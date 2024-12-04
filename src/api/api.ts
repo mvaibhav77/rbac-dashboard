@@ -25,7 +25,7 @@ export const fetchUsers = async (): Promise<User[]> => {
 
 // Fetch users by team
 export const fetchUsersByTeam = async (teamId: number): Promise<User[]> => {
-  const response = await axios.get(`${API_BASE_URL}/users?teamId=${teamId}`);
+  const response = await api.get(`/users?teamId=${teamId}`);
   return response.data;
 };
 
@@ -81,62 +81,113 @@ export const fetchRoles = async (): Promise<Role[]> => {
   return response.data;
 };
 
-export const addRole = async (role: Omit<Role, "id">): Promise<Role> => {
-  const response = await axios.post(`${API_BASE_URL}/roles`, role);
-  return response.data;
+export const addRole = async (role: Partial<Role>) => {
+  try {
+    const response = await api.post("/roles", role);
+    return response.data;
+  } catch (error) {
+    console.error("Error adding role", error);
+    throw error;
+  }
 };
 
-export const updateRole = async (id: number, role: Role): Promise<Role> => {
-  const response = await axios.put(`${API_BASE_URL}/roles/${id}`, role);
-  return response.data;
+export const updateRole = async (id: string, role: Partial<Role>) => {
+  try {
+    const response = await api.put(`/roles/${id}`, role);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating role", error);
+    throw error;
+  }
 };
 
-export const deleteRole = async (id: number): Promise<void> => {
-  await axios.delete(`${API_BASE_URL}/roles/${id}`);
+export const deleteRole = async (id: string): Promise<void> => {
+  await api.delete(`/roles/${id}`);
 };
 
 // Permissions API
-export const fetchPermissions = async (): Promise<Permission[]> => {
-  const response = await api.get("/permissions");
+export const fetchPermissionLevels = async (): Promise<Permission[]> => {
+  const response = await api.get("/permissionLevels");
   return response.data;
 };
-export const addPermission = async (
+
+export const addPermissionLevel = async (
   permission: Omit<Permission, "id">
 ): Promise<Permission> => {
-  const response = await axios.post(`${API_BASE_URL}/permissions`, permission);
+  const response = await api.post("/permissionLevels", permission);
   return response.data;
 };
 
-export const updatePermission = async (
-  id: number,
-  permission: Permission
+export const updatePermissionLevel = async (
+  id: string,
+  permission: Partial<Omit<Permission, "id">>
 ): Promise<Permission> => {
-  const response = await axios.put(
-    `${API_BASE_URL}/permissions/${id}`,
-    permission
-  );
+  const response = await api.put(`/permissionLevels/${id}`, permission);
   return response.data;
 };
 
-export const deletePermission = async (id: number): Promise<void> => {
-  await axios.delete(`${API_BASE_URL}/permissions/${id}`);
+export const deletePermissionLevel = async (id: string): Promise<void> => {
+  await api.delete(`/permissionLevels/${id}`);
 };
 
-// Role-Permission Mapping API
+export const fetchHierarchicalPermissions = async (): Promise<Permission[]> => {
+  const permissions = await fetchPermissionLevels();
+
+  console.log(permissions);
+
+  // Create a map for quick access by ID
+  const map = new Map<string, Permission>();
+
+  // Initialize all permissions in the map with empty children arrays
+  permissions.forEach((perm) => {
+    map.set(perm.id, { ...perm, children: [] });
+  });
+
+  // Root-level permissions
+  const root: Permission[] = [];
+
+  // Populate the hierarchy
+  permissions.forEach((perm) => {
+    if (perm.parentId) {
+      const parent = map.get(perm.parentId);
+      if (parent) {
+        if (!parent.children) {
+          parent.children = [];
+        }
+        parent.children.push(map.get(perm.id)!); // Add the child to the parent's children array
+      } else {
+        console.warn(
+          `Parent with ID ${perm.parentId} not found for permission ${perm.id}`
+        );
+      }
+    } else {
+      root.push(map.get(perm.id)!); // Add root-level permissions directly
+    }
+  });
+
+  return root;
+};
+
+// Fetch role-permission assignments
 export const fetchRolePermissions = async (): Promise<RolePermission[]> => {
   const response = await api.get("/rolePermissions");
   return response.data;
 };
 
-export const addRolePermission = async (
-  mapping: Omit<RolePermission, "id">
-): Promise<RolePermission> => {
-  const response = await api.post("/rolePermissions", mapping);
-  return response.data;
+// Assign permissions to a role
+export const assignPermissionsToRole = async (
+  roleId: number,
+  permissionLevelIds: string[]
+): Promise<void> => {
+  await api.post(`/roles/${roleId}/permissions`, { permissionLevelIds });
 };
 
-export const deleteRolePermission = async (id: number): Promise<void> => {
-  await api.delete(`/rolePermissions/${id}`);
+// Remove a permission from a role
+export const removePermissionFromRole = async (
+  roleId: number,
+  permissionLevelId: string
+): Promise<void> => {
+  await api.delete(`/roles/${roleId}/permissions/${permissionLevelId}`);
 };
 
 // User-Team Mapping API

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { User, Team } from "@/lib/types";
+import { User, Team, Role } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,7 +16,8 @@ interface UserFormProps {
   onSave: (user: Partial<User>) => void;
   onCancel: () => void;
   teams: Team[];
-  currentTeamId?: number; // Current team for context
+  roles: Role[];
+  currentTeamId?: number;
   user?: User;
 }
 
@@ -24,17 +25,18 @@ const UserForm: React.FC<UserFormProps> = ({
   onSave,
   onCancel,
   teams,
+  roles,
   currentTeamId,
   user,
 }) => {
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
-  const [role, setRole] = useState(user?.role || "team_member");
+  const [roleId, setRoleId] = useState<string>(user?.roleId ? String(user.roleId) : String(roles[0]?.id) || "0");
   const [status, setStatus] = useState(user?.status || "Active");
   const [teamId, setTeamId] = useState(user?.teamId || currentTeamId || null);
 
   const handleSubmit = () => {
-    onSave({ id: user?.id, name, email, role, status, teamId });
+    onSave({ id: user?.id, name, email, roleId, status, teamId });
   };
 
   return (
@@ -50,25 +52,28 @@ const UserForm: React.FC<UserFormProps> = ({
         placeholder="Email"
       />
       <Select
-        value={role}
-        onValueChange={(e: "manager" | "team_member") => setRole(e)}
+        value={String(roleId)}
+        onValueChange={(value) => setRoleId(value)}
       >
         <SelectTrigger>
           <SelectValue placeholder="Select a role">
-            {role === "team_member" ? "Team Member" : "Manager"}
+            {roles.find((role) => role.id === roleId)?.name || "Select Role"}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             <SelectLabel>Set Role</SelectLabel>
-            <SelectItem value="team_member">Team Member</SelectItem>
-            <SelectItem value="manager">Manager</SelectItem>
+            {roles.map((role) => (
+              <SelectItem key={role.id} value={String(role.id)}>
+                {role.name}
+              </SelectItem>
+            ))}
           </SelectGroup>
         </SelectContent>
       </Select>
       <Select
         value={status}
-        onValueChange={(e: "Active" | "Inactive") => setStatus(e)}
+        onValueChange={(value: "Active" | "Inactive") => setStatus(value)}
       >
         <SelectTrigger>
           <SelectValue placeholder="Select a status">{status}</SelectValue>
@@ -82,10 +87,10 @@ const UserForm: React.FC<UserFormProps> = ({
         </SelectContent>
       </Select>
       <Select
-        disabled={role === "admin" || currentTeamId === null}
+        disabled={currentTeamId === null}
         value={teamId !== null ? String(teamId) : "null"}
-        onValueChange={(e: string) =>
-          setTeamId(e === "null" ? null : Number(e))
+        onValueChange={(value: string) =>
+          setTeamId(value === "null" ? null : Number(value))
         }
       >
         <SelectTrigger>
@@ -107,6 +112,7 @@ const UserForm: React.FC<UserFormProps> = ({
           </SelectGroup>
         </SelectContent>
       </Select>
+
       <div className="flex justify-end space-x-2">
         <Button variant="secondary" onClick={onCancel}>
           Cancel
